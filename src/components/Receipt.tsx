@@ -1,9 +1,8 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Receipt as ReceiptType } from "@/hooks/useCart";
-import { Download, Print, X } from "lucide-react";
+import { Download, Printer, X } from "lucide-react";
 
 interface ReceiptProps {
   receipt: ReceiptType | null;
@@ -115,7 +114,7 @@ export const Receipt = ({ receipt, isOpen, onClose }: ReceiptProps) => {
 
         <div className="flex gap-2 mt-4">
           <Button onClick={handlePrint} variant="outline" className="flex-1">
-            <Print className="h-4 w-4 mr-2" />
+            <Printer className="h-4 w-4 mr-2" />
             Print
           </Button>
           <Button onClick={handleDownload} variant="outline" className="flex-1">

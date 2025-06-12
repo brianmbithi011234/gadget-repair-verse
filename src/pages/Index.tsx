@@ -24,6 +24,10 @@ import {
   Clock
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { useCart } from "@/hooks/useCart";
+import { ShoppingCart as ShoppingCartComponent } from "@/components/ShoppingCart";
+import { CheckoutForm } from "@/components/CheckoutForm";
+import { Receipt } from "@/components/Receipt";
 
 const Index = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -36,6 +40,18 @@ const Index = () => {
     issue: "",
     message: ""
   });
+
+  const { 
+    cartItems, 
+    isCartOpen, 
+    setIsCartOpen, 
+    addToCart, 
+    getCartItemsCount 
+  } = useCart();
+
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+  const [currentReceipt, setCurrentReceipt] = useState(null);
+  const [isReceiptOpen, setIsReceiptOpen] = useState(false);
 
   const categories = [
     { id: "all", name: "All Products", icon: ShoppingCart },
@@ -152,6 +168,17 @@ const Index = () => {
     });
   };
 
+  const handleCheckout = () => {
+    setIsCartOpen(false);
+    setIsCheckoutOpen(true);
+  };
+
+  const handleOrderComplete = (receipt: any) => {
+    setCurrentReceipt(receipt);
+    setIsReceiptOpen(true);
+    setIsCheckoutOpen(false);
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Navigation */}
@@ -166,9 +193,12 @@ const Index = () => {
               <a href="#products" className="text-gray-600 hover:text-blue-600 transition-colors">Products</a>
               <a href="#repairs" className="text-gray-600 hover:text-blue-600 transition-colors">Repairs</a>
               <a href="#contact" className="text-gray-600 hover:text-blue-600 transition-colors">Contact</a>
-              <Button className="bg-blue-600 hover:bg-blue-700">
+              <Button 
+                className="bg-blue-600 hover:bg-blue-700"
+                onClick={() => setIsCartOpen(true)}
+              >
                 <ShoppingCart className="h-4 w-4 mr-2" />
-                Cart (0)
+                Cart ({getCartItemsCount()})
               </Button>
             </div>
           </div>
@@ -228,7 +258,7 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Products Section */}
+      {/* Products Section with updated Add to Cart functionality */}
       <section id="products" className="py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
@@ -299,7 +329,7 @@ const Index = () => {
                   <Button 
                     className="w-full" 
                     disabled={!product.inStock}
-                    onClick={() => toast({ title: "Added to cart!", description: `${product.name} has been added to your cart.` })}
+                    onClick={() => addToCart(product)}
                   >
                     <ShoppingCart className="h-4 w-4 mr-2" />
                     {product.inStock ? "Add to Cart" : "Out of Stock"}
@@ -483,6 +513,25 @@ const Index = () => {
           </div>
         </div>
       </footer>
+
+      {/* Shopping Cart, Checkout, and Receipt Components */}
+      <ShoppingCartComponent 
+        isOpen={isCartOpen} 
+        onClose={() => setIsCartOpen(false)} 
+        onCheckout={handleCheckout}
+      />
+      
+      <CheckoutForm 
+        isOpen={isCheckoutOpen} 
+        onClose={() => setIsCheckoutOpen(false)} 
+        onOrderComplete={handleOrderComplete}
+      />
+      
+      <Receipt 
+        receipt={currentReceipt} 
+        isOpen={isReceiptOpen} 
+        onClose={() => setIsReceiptOpen(false)}
+      />
     </div>
   );
 };

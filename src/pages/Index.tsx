@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -52,7 +51,7 @@ const Index = () => {
       id: 1,
       name: "iPhone 15 Pro",
       category: "smartphones",
-      price: 999,
+      price: 149850,
       image: "https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=300&h=300&fit=crop",
       rating: 4.8,
       reviews: 245,
@@ -63,7 +62,7 @@ const Index = () => {
       id: 2,
       name: "MacBook Pro M3",
       category: "laptops",
-      price: 1999,
+      price: 299850,
       image: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=300&h=300&fit=crop",
       rating: 4.9,
       reviews: 189,
@@ -74,7 +73,7 @@ const Index = () => {
       id: 3,
       name: "Sony WH-1000XM5",
       category: "headphones",
-      price: 399,
+      price: 59850,
       image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=300&h=300&fit=crop",
       rating: 4.7,
       reviews: 567,
@@ -85,7 +84,7 @@ const Index = () => {
       id: 4,
       name: "Canon EOS R6",
       category: "cameras",
-      price: 2499,
+      price: 374850,
       image: "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=300&h=300&fit=crop",
       rating: 4.6,
       reviews: 123,
@@ -96,7 +95,7 @@ const Index = () => {
       id: 5,
       name: "Apple Watch Series 9",
       category: "watches",
-      price: 429,
+      price: 64350,
       image: "https://images.unsplash.com/photo-1434494878577-86c23bcb06b9?w=300&h=300&fit=crop",
       rating: 4.5,
       reviews: 334,
@@ -107,7 +106,7 @@ const Index = () => {
       id: 6,
       name: "Samsung Galaxy S24",
       category: "smartphones",
-      price: 799,
+      price: 119850,
       image: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=300&h=300&fit=crop",
       rating: 4.4,
       reviews: 456,
@@ -117,10 +116,10 @@ const Index = () => {
   ];
 
   const repairServices = [
-    { id: 1, name: "Screen Repair", icon: Smartphone, price: "From $79" },
-    { id: 2, name: "Battery Replacement", icon: Zap, price: "From $49" },
-    { id: 3, name: "Water Damage", icon: Shield, price: "From $99" },
-    { id: 4, name: "Software Issues", icon: Wrench, price: "From $39" }
+    { id: 1, name: "Screen Repair", icon: Smartphone, price: "From KSH 11,850" },
+    { id: 2, name: "Battery Replacement", icon: Zap, price: "From KSH 7,350" },
+    { id: 3, name: "Water Damage", icon: Shield, price: "From KSH 14,850" },
+    { id: 4, name: "Software Issues", icon: Wrench, price: "From KSH 5,850" }
   ];
 
   const filteredProducts = products.filter(product => {
@@ -161,7 +160,7 @@ const Index = () => {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-2">
               <Zap className="h-8 w-8 text-blue-600" />
-              <span className="text-2xl font-bold text-gray-900">TechHub</span>
+              <span className="text-2xl font-bold text-gray-900">Betmo Enterprises</span>
             </div>
             <div className="hidden md:flex items-center space-x-8">
               <a href="#products" className="text-gray-600 hover:text-blue-600 transition-colors">Products</a>
@@ -282,7 +281,7 @@ const Index = () => {
                 <CardHeader>
                   <div className="flex justify-between items-start">
                     <CardTitle className="text-lg">{product.name}</CardTitle>
-                    <span className="text-2xl font-bold text-blue-600">${product.price}</span>
+                    <span className="text-2xl font-bold text-blue-600">KSH {product.price.toLocaleString()}</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
@@ -419,21 +418,21 @@ const Index = () => {
               <CardHeader>
                 <Phone className="h-8 w-8 text-blue-600 mx-auto mb-2" />
                 <CardTitle>Phone</CardTitle>
-                <CardDescription>+1 (555) 123-4567</CardDescription>
+                <CardDescription>+254 712 345 678</CardDescription>
               </CardHeader>
             </Card>
             <Card className="text-center">
               <CardHeader>
                 <Mail className="h-8 w-8 text-blue-600 mx-auto mb-2" />
                 <CardTitle>Email</CardTitle>
-                <CardDescription>support@techhub.com</CardDescription>
+                <CardDescription>support@betmoenterprises.com</CardDescription>
               </CardHeader>
             </Card>
             <Card className="text-center">
               <CardHeader>
                 <MapPin className="h-8 w-8 text-blue-600 mx-auto mb-2" />
                 <CardTitle>Location</CardTitle>
-                <CardDescription>123 Tech Street, Digital City</CardDescription>
+                <CardDescription>123 Tech Street, Nairobi, Kenya</CardDescription>
               </CardHeader>
             </Card>
           </div>
@@ -447,7 +446,7 @@ const Index = () => {
             <div>
               <div className="flex items-center space-x-2 mb-4">
                 <Zap className="h-8 w-8 text-blue-400" />
-                <span className="text-2xl font-bold">TechHub</span>
+                <span className="text-2xl font-bold">Betmo Enterprises</span>
               </div>
               <p className="text-gray-400">Your trusted electronics store and repair service provider.</p>
             </div>
@@ -480,7 +479,7 @@ const Index = () => {
             </div>
           </div>
           <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-            <p>&copy; 2024 TechHub. All rights reserved.</p>
+            <p>&copy; 2024 Betmo Enterprises. All rights reserved.</p>
           </div>
         </div>
       </footer>

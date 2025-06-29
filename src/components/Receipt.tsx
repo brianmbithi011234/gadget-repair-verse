@@ -1,18 +1,25 @@
-import { Button } from "@/components/ui/button";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Receipt as ReceiptType } from "@/hooks/useCart";
-import { Download, Printer, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { Printer, Download } from "lucide-react";
 
 interface ReceiptProps {
-  receipt: ReceiptType | null;
-  isOpen: boolean;
-  onClose: () => void;
+  orderData: {
+    id: string;
+    customer: any;
+    items: any[];
+    paymentMethod: string;
+    paymentDetails: any;
+    subtotal: number;
+    tax: number;
+    total: number;
+    date: string;
+    status: string;
+  };
 }
 
-export const Receipt = ({ receipt, isOpen, onClose }: ReceiptProps) => {
-  if (!receipt) return null;
-
+const Receipt = ({ orderData }: ReceiptProps) => {
   const handlePrint = () => {
     window.print();
   };
@@ -20,109 +27,119 @@ export const Receipt = ({ receipt, isOpen, onClose }: ReceiptProps) => {
   const handleDownload = () => {
     const receiptContent = document.getElementById('receipt-content');
     if (receiptContent) {
-      const printWindow = window.open('', '_blank');
-      if (printWindow) {
-        printWindow.document.write(`
-          <html>
-            <head>
-              <title>Receipt - ${receipt.id}</title>
-              <style>
-                body { font-family: Arial, sans-serif; padding: 20px; }
-                .header { text-align: center; margin-bottom: 20px; }
-                .details { margin: 20px 0; }
-                .items { margin: 20px 0; }
-                .total { font-weight: bold; border-top: 2px solid #000; padding-top: 10px; }
-              </style>
-            </head>
-            <body>
-              ${receiptContent.innerHTML}
-            </body>
-          </html>
-        `);
-        printWindow.document.close();
-        printWindow.print();
-      }
+      const printWindow = window.open('', '', 'height=600,width=800');
+      printWindow?.document.write('<html><head><title>Receipt</title>');
+      printWindow?.document.write('<style>body{font-family:Arial,sans-serif;margin:20px;}</style>');
+      printWindow?.document.write('</head><body>');
+      printWindow?.document.write(receiptContent.innerHTML);
+      printWindow?.document.write('</body></html>');
+      printWindow?.document.close();
+      printWindow?.print();
+    }
+  };
+
+  const getPaymentMethodDisplay = () => {
+    switch (orderData.paymentMethod) {
+      case "card":
+        return `Credit/Debit Card ending in ****${orderData.paymentDetails?.details?.cardNumber?.slice(-4) || "****"}`;
+      case "wallet":
+        return `${orderData.paymentDetails?.provider || "Digital Wallet"}`;
+      case "bank":
+        return `Bank Transfer - ${orderData.paymentDetails?.details?.bankName || "Bank"}`;
+      default:
+        return "Payment Method";
     }
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <div className="flex items-center justify-between">
-            <DialogTitle>Receipt</DialogTitle>
-            <Button variant="ghost" size="icon" onClick={onClose}>
-              <X className="h-4 w-4" />
-            </Button>
+    <div className="max-w-2xl mx-auto">
+      <div className="flex justify-end gap-2 mb-4 print:hidden">
+        <Button onClick={handlePrint} variant="outline" size="sm">
+          <Printer className="h-4 w-4 mr-2" />
+          Print
+        </Button>
+        <Button onClick={handleDownload} variant="outline" size="sm">
+          <Download className="h-4 w-4 mr-2" />
+          Download
+        </Button>
+      </div>
+
+      <Card id="receipt-content">
+        <CardHeader className="text-center">
+          <CardTitle className="text-2xl">Betmo Enterprises</CardTitle>
+          <p className="text-sm text-gray-600">Purchase Receipt</p>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-2 gap-4 text-sm">
+            <div>
+              <strong>Order ID:</strong> {orderData.id}
+            </div>
+            <div>
+              <strong>Date:</strong> {new Date(orderData.date).toLocaleDateString()}
+            </div>
+            <div>
+              <strong>Status:</strong> {orderData.status.toUpperCase()}
+            </div>
+            <div>
+              <strong>Payment Method:</strong> {getPaymentMethodDisplay()}
+            </div>
           </div>
-        </DialogHeader>
 
-        <Card>
-          <CardContent className="p-6" id="receipt-content">
-            <div className="text-center mb-6">
-              <h2 className="text-2xl font-bold">Betmo Enterprises</h2>
-              <p className="text-sm text-muted-foreground">Electronics & Repair Services</p>
-              <p className="text-sm text-muted-foreground">123 Tech Street, Nairobi, Kenya</p>
-              <p className="text-sm text-muted-foreground">+254 712 345 678</p>
+          <Separator />
+
+          <div>
+            <h3 className="font-semibold mb-2">Customer Information</h3>
+            <div className="text-sm space-y-1">
+              <p><strong>Name:</strong> {orderData.customer.name}</p>
+              <p><strong>Email:</strong> {orderData.customer.email}</p>
+              {orderData.customer.phone && <p><strong>Phone:</strong> {orderData.customer.phone}</p>}
+              {orderData.customer.address && <p><strong>Address:</strong> {orderData.customer.address}, {orderData.customer.city}</p>}
             </div>
+          </div>
 
-            <div className="border-t border-b py-4 mb-4">
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <p><strong>Receipt ID:</strong> {receipt.id}</p>
-                  <p><strong>Date:</strong> {receipt.date}</p>
-                </div>
-                <div>
-                  <p><strong>Customer:</strong> {receipt.customerInfo.name}</p>
-                  <p><strong>Email:</strong> {receipt.customerInfo.email}</p>
-                  <p><strong>Phone:</strong> {receipt.customerInfo.phone}</p>
-                </div>
-              </div>
-            </div>
+          <Separator />
 
-            <div className="mb-4">
-              <h3 className="font-semibold mb-2">Items Purchased:</h3>
-              {receipt.items.map((item) => (
-                <div key={item.id} className="flex justify-between text-sm py-1">
-                  <span>{item.name} (x{item.quantity})</span>
+          <div>
+            <h3 className="font-semibold mb-2">Items Purchased</h3>
+            <div className="space-y-2">
+              {orderData.items.map((item, index) => (
+                <div key={index} className="flex justify-between text-sm">
+                  <div>
+                    <span className="font-medium">{item.name}</span>
+                    <span className="text-gray-600 ml-2">x{item.quantity}</span>
+                  </div>
                   <span>KSH {(item.price * item.quantity).toLocaleString()}</span>
                 </div>
               ))}
             </div>
+          </div>
 
-            <div className="border-t pt-4">
-              <div className="flex justify-between text-sm">
-                <span>Subtotal:</span>
-                <span>KSH {receipt.subtotal.toLocaleString()}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span>VAT (16%):</span>
-                <span>KSH {receipt.tax.toLocaleString()}</span>
-              </div>
-              <div className="flex justify-between font-bold text-lg border-t pt-2 mt-2">
-                <span>Total:</span>
-                <span>KSH {receipt.total.toLocaleString()}</span>
-              </div>
+          <Separator />
+
+          <div className="space-y-2">
+            <div className="flex justify-between text-sm">
+              <span>Subtotal:</span>
+              <span>KSH {orderData.subtotal.toLocaleString()}</span>
             </div>
-
-            <div className="text-center mt-6 text-sm text-muted-foreground">
-              <p>Thank you for shopping with Betmo Enterprises!</p>
-              <p>For support, contact us at support@betmoenterprises.com</p>
+            <div className="flex justify-between text-sm">
+              <span>Tax (16%):</span>
+              <span>KSH {orderData.tax.toLocaleString()}</span>
             </div>
-          </CardContent>
-        </Card>
+            <Separator />
+            <div className="flex justify-between font-bold text-lg">
+              <span>Total:</span>
+              <span>KSH {orderData.total.toLocaleString()}</span>
+            </div>
+          </div>
 
-        <div className="flex gap-2 mt-4">
-          <Button onClick={handlePrint} variant="outline" className="flex-1">
-            <Printer className="h-4 w-4 mr-2" />
-            Print
-          </Button>
-          <Button onClick={handleDownload} variant="outline" className="flex-1">
-            <Download className="h-4 w-4 mr-2" />
-            Download
-          </Button>
-        </div>
-      </DialogContent>
-    </Dialog>
+          <div className="text-center text-sm text-gray-600 mt-6">
+            <p>Thank you for your purchase!</p>
+            <p>For support, contact us at support@betmoenterprises.com</p>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
+
+export default Receipt;

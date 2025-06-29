@@ -1,159 +1,180 @@
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { X } from "lucide-react";
-import { useCart } from "@/hooks/useCart";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 import { toast } from "@/hooks/use-toast";
+import PaymentMethodSelector from "./PaymentMethodSelector";
 
 interface CheckoutFormProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onOrderComplete: (receipt: any) => void;
+  cartItems: any[];
+  total: number;
+  onOrderComplete: (orderData: any) => void;
 }
 
-export const CheckoutForm = ({ isOpen, onClose, onOrderComplete }: CheckoutFormProps) => {
-  const { cartItems, getCartTotal, generateReceipt, clearCart } = useCart();
+const CheckoutForm = ({ cartItems, total, onOrderComplete }: CheckoutFormProps) => {
   const [customerInfo, setCustomerInfo] = useState({
     name: "",
     email: "",
     phone: "",
-    address: ""
+    address: "",
+    city: "",
+    zipCode: ""
   });
 
-  const subtotal = getCartTotal();
-  const tax = subtotal * 0.16; // 16% VAT
-  const total = subtotal + tax;
+  const [paymentMethod, setPaymentMethod] = useState("");
+  const [paymentDetails, setPaymentDetails] = useState({});
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const tax = total * 0.16; // 16% VAT
+  const finalTotal = total + tax;
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!customerInfo.name || !customerInfo.email || !customerInfo.phone) {
+    if (!customerInfo.name || !customerInfo.email || !paymentMethod) {
       toast({
-        title: "Please fill in all required fields",
+        title: "Missing Information",
+        description: "Please fill in all required fields and select a payment method.",
         variant: "destructive"
       });
       return;
     }
 
-    const receipt = generateReceipt({
-      name: customerInfo.name,
-      email: customerInfo.email,
-      phone: customerInfo.phone
-    });
+    setIsProcessing(true);
 
-    clearCart();
-    onOrderComplete(receipt);
-    onClose();
-    
-    toast({
-      title: "Order Completed!",
-      description: "Your receipt has been generated."
-    });
+    // Simulate payment processing
+    setTimeout(() => {
+      const orderData = {
+        id: `ORD-${Date.now()}`,
+        customer: customerInfo,
+        items: cartItems,
+        paymentMethod,
+        paymentDetails,
+        subtotal: total,
+        tax,
+        total: finalTotal,
+        date: new Date().toISOString(),
+        status: "completed"
+      };
+
+      onOrderComplete(orderData);
+      setIsProcessing(false);
+      
+      toast({
+        title: "Order Completed!",
+        description: "Your order has been processed successfully. Receipt generated.",
+      });
+    }, 2000);
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <div className="flex items-center justify-between">
-            <DialogTitle>Checkout</DialogTitle>
-            <Button variant="ghost" size="icon" onClick={onClose}>
-              <X className="h-4 w-4" />
-            </Button>
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>Customer Information</CardTitle>
+          <CardDescription>Enter your details for order processing</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="name">Full Name *</Label>
+              <Input
+                id="name"
+                value={customerInfo.name}
+                onChange={(e) => setCustomerInfo({...customerInfo, name: e.target.value})}
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="email">Email *</Label>
+              <Input
+                id="email"
+                type="email"
+                value={customerInfo.email}
+                onChange={(e) => setCustomerInfo({...customerInfo, email: e.target.value})}
+                required
+              />
+            </div>
           </div>
-        </DialogHeader>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="phone">Phone</Label>
+              <Input
+                id="phone"
+                value={customerInfo.phone}
+                onChange={(e) => setCustomerInfo({...customerInfo, phone: e.target.value})}
+              />
+            </div>
+            <div>
+              <Label htmlFor="city">City</Label>
+              <Input
+                id="city"
+                value={customerInfo.city}
+                onChange={(e) => setCustomerInfo({...customerInfo, city: e.target.value})}
+              />
+            </div>
+          </div>
+          <div>
+            <Label htmlFor="address">Address</Label>
+            <Input
+              id="address"
+              value={customerInfo.address}
+              onChange={(e) => setCustomerInfo({...customerInfo, address: e.target.value})}
+            />
+          </div>
+        </CardContent>
+      </Card>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Customer Information */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Customer Information</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <Label htmlFor="name">Full Name *</Label>
-                  <Input
-                    id="name"
-                    value={customerInfo.name}
-                    onChange={(e) => setCustomerInfo({...customerInfo, name: e.target.value})}
-                    placeholder="Enter your full name"
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="email">Email *</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={customerInfo.email}
-                    onChange={(e) => setCustomerInfo({...customerInfo, email: e.target.value})}
-                    placeholder="Enter your email"
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="phone">Phone Number *</Label>
-                  <Input
-                    id="phone"
-                    value={customerInfo.phone}
-                    onChange={(e) => setCustomerInfo({...customerInfo, phone: e.target.value})}
-                    placeholder="Enter your phone number"
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="address">Address</Label>
-                  <Input
-                    id="address"
-                    value={customerInfo.address}
-                    onChange={(e) => setCustomerInfo({...customerInfo, address: e.target.value})}
-                    placeholder="Enter your address"
-                  />
-                </div>
-              </form>
-            </CardContent>
-          </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>Payment Method</CardTitle>
+          <CardDescription>Choose how you'd like to pay</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <PaymentMethodSelector
+            selectedMethod={paymentMethod}
+            onMethodChange={setPaymentMethod}
+            onPaymentDetailsChange={setPaymentDetails}
+          />
+        </CardContent>
+      </Card>
 
-          {/* Order Summary */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Order Summary</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                {cartItems.map((item) => (
-                  <div key={item.id} className="flex justify-between text-sm">
-                    <span>{item.name} (x{item.quantity})</span>
-                    <span>KSH {(item.price * item.quantity).toLocaleString()}</span>
-                  </div>
-                ))}
-                <div className="border-t pt-2 mt-4">
-                  <div className="flex justify-between">
-                    <span>Subtotal:</span>
-                    <span>KSH {subtotal.toLocaleString()}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>VAT (16%):</span>
-                    <span>KSH {tax.toLocaleString()}</span>
-                  </div>
-                  <div className="flex justify-between font-semibold text-lg border-t pt-2">
-                    <span>Total:</span>
-                    <span>KSH {total.toLocaleString()}</span>
-                  </div>
-                </div>
-              </div>
-              <Button onClick={handleSubmit} className="w-full mt-6" size="lg">
-                Complete Order
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-      </DialogContent>
-    </Dialog>
+      <Card>
+        <CardHeader>
+          <CardTitle>Order Summary</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-2">
+            <div className="flex justify-between">
+              <span>Subtotal:</span>
+              <span>KSH {total.toLocaleString()}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Tax (16%):</span>
+              <span>KSH {tax.toLocaleString()}</span>
+            </div>
+            <Separator />
+            <div className="flex justify-between font-bold text-lg">
+              <span>Total:</span>
+              <span>KSH {finalTotal.toLocaleString()}</span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Button 
+        type="submit" 
+        className="w-full" 
+        size="lg"
+        disabled={isProcessing}
+      >
+        {isProcessing ? "Processing Payment..." : `Pay KSH ${finalTotal.toLocaleString()}`}
+      </Button>
+    </form>
   );
 };
+
+export default CheckoutForm;

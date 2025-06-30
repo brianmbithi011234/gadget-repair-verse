@@ -16,8 +16,8 @@ import {
 } from "lucide-react";
 import { useCart } from "@/hooks/useCart";
 import { ShoppingCart as ShoppingCartComponent } from "@/components/ShoppingCart";
-import { CheckoutForm } from "@/components/CheckoutForm";
-import { Receipt } from "@/components/Receipt";
+import CheckoutForm from "@/components/CheckoutForm";
+import Receipt from "@/components/Receipt";
 import { Link } from "react-router-dom";
 
 const Products = () => {
